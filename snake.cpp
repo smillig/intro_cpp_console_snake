@@ -6,24 +6,87 @@
 #include <chrono>
 #include <conio.h>
 
+// create struct for snake position
+struct Vec2
+{
+    int x;
+    int y;
+
+    bool operator==(const Vec2& other) const
+    {
+        return x == other.x && y == other.y;
+    }
+
+    Vec2 operator+(const Vec2& other) const
+    {
+        return {x + other.x, y + other.y};
+    }
+};
+
+class GameGrid
+{
+private:
+    int gridSize;
+    std::vector<char> grid;
+
+public:
+    GameGrid(int gridSize, char emptyCell)
+        : gridSize(gridSize), grid(gridSize, emptyCell) 
+        {
+            this->gridSize = gridSize;
+            grid.resize(gridSize, emptyCell);
+        }
+
+    std::vector<char> getGrid() const
+    {
+        return grid;
+    }
+
+    void setGrid(int index, char value)
+    {
+        grid[index] = value;
+    }
+
+    void emptyGrid()
+    {
+        grid.assign(gridSize, '.');
+    }
+
+    int getGridSize() const
+    {
+        return gridSize;
+    }
+};
+
+// this will be the constructor once moved to grid.cpp
+/*
+GameGrid::GameGrid(int gridSize, char emptyCell)
+{
+    // or is this my constructor?
+    this->gridSize = gridSize;
+    grid.resize(gridSize, emptyCell);
+}
+*/
+
 // create struct for gameplay config items
 struct GameConfig
 {
     int gridLength = 10;
     int gridWidth = 10;
     int snakeLength = 1;
-    std::vector<int> snakePos = {0, 0};
+    Vec2 snakePos = {0, 0};
     char lastInput = 'w';
     char emptyCell = '.';
     char wallCell = '#';
-    // char foodCell = '\256'; // ASCII ®
+    char foodCell = 'o';
     char snakeHead = '@';
-    char snakeBody = 'o';
+    char snakeBody = '*';
+    GameGrid grid = GameGrid(gridLength * gridWidth, emptyCell);
 };
 
-int GridIndex(int row, int col, int gridLength) // row = x , col = y
+int GridIndex(Vec2 pos, int gridLength) // row = x , col = y
 {
-    return row * gridLength + col;
+    return pos.x * gridLength + pos.y;
 }
 
 void ClearScreen()
@@ -35,11 +98,11 @@ void ClearScreen()
 // returns true if in bounds else player has hit wall
 bool CheckOutOfBounds(GameConfig &config)
 {
-    if (config.snakePos[0] < 0 || config.snakePos[0] >= config.gridWidth)
+    if (config.snakePos.x < 0 || config.snakePos.x >= config.gridWidth)
     {
         return true;
     }
-    if (config.snakePos[1] < 0 || config.snakePos[1] >= config.gridLength)
+    if (config.snakePos.y < 0 || config.snakePos.y >= config.gridLength)
     {
         return true;
     }
@@ -48,14 +111,9 @@ bool CheckOutOfBounds(GameConfig &config)
 
 void DrawGrid(GameConfig &config)
 {
-    int grid_size = config.gridWidth * config.gridLength;
-    
-    // Use std::vector for a grid whose size is determined at runtime.
-    // This initializes a vector of `grid_size` characters, all set to '.'.
-    std::vector<char> grid(grid_size, config.emptyCell);
-
+    config.grid.emptyGrid();
     // Set the snake head position in the grid
-    grid[GridIndex(config.snakePos[0], config.snakePos[1], config.gridLength)] = config.snakeHead;
+    config.grid.setGrid(GridIndex(config.snakePos, config.gridLength), config.snakeHead);
     
     // create grid on terminal
     for (int i = 0; i < config.gridWidth; i++) // i represents the row
@@ -64,7 +122,7 @@ void DrawGrid(GameConfig &config)
         {
             // To access an element in a 1D vector as if it were a 2D grid,
             // use the formula: row * num_columns + column. Here it's i * length + j.
-            std::cout << grid[i * config.gridLength + j];
+            std::cout << config.grid.getGrid()[i * config.gridLength + j];
         }
         std::cout << '\n';
     }
@@ -85,16 +143,16 @@ void UpdateSnake(GameConfig &config)
     switch (config.lastInput)
     {
     case 'w':
-        config.snakePos[0] -= 1;
+        config.snakePos = config.snakePos + Vec2{-1, 0};
         break;
     case 's':
-        config.snakePos[0] += 1;
+        config.snakePos = config.snakePos + Vec2{1, 0};
         break;
     case 'a':
-        config.snakePos[1] -= 1;
+        config.snakePos = config.snakePos + Vec2{0, -1};
         break;
     case 'd':
-        config.snakePos[1] += 1;
+        config.snakePos = config.snakePos + Vec2{0, 1};
         break;
     }
 }
@@ -183,7 +241,7 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
     ClearScreen();
     bool gameOver = false;
     // Set start position and reset last direction
-    std::vector<int> startPos = {config.gridLength / 2, config.gridWidth / 2};
+    Vec2 startPos = {config.gridLength / 2, config.gridWidth / 2};
     config.snakePos = startPos;
     config.lastInput = 'w'; // Reset to default starting direction
 
@@ -200,12 +258,13 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
             std::cout << "\n--- GAME OVER ---\n";
             std::cout << "Press any key to return to the main menu." << std::endl;
             _getch(); // Wait for any key press
+            ClearScreen();
             state = ProgState::MainMenu;
             break; 
         }
 
         // Pause for 1 second
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     return state;
 }
