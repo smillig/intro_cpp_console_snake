@@ -15,7 +15,7 @@ Adding food that pops up in a random location, one at a time.
 
 Adding growth after food is eaten.
 
-Adding score and incrementing score after food is eaten.
+Incrementing score after food is eaten.
 
 Adding options and speed setting. (chang the grid size and difficulty (speed))
 

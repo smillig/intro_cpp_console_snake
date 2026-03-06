@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <conio.h>
+#include <fstream>
 
 // create struct for snake position
 struct Vec2
@@ -68,12 +69,16 @@ GameGrid::GameGrid(int gridSize, char emptyCell)
 }
 */
 
+
+
 // create struct for gameplay config items
 struct GameConfig
 {
     int gridLength = 10;
     int gridWidth = 10;
     int snakeLength = 1;
+    int score = 0;
+    int highScore = 0;
     Vec2 snakePos = {0, 0};
     char lastInput = 'w';
     char emptyCell = '.';
@@ -83,6 +88,28 @@ struct GameConfig
     char snakeBody = '*';
     GameGrid grid = GameGrid(gridLength * gridWidth, emptyCell);
 };
+
+int LoadHighScore()
+{
+    std::ifstream file("highscore.txt");
+    int highScore = 0;
+    if (file.is_open())
+    {
+        file >> highScore;
+        file.close();
+    }
+    return highScore;
+}
+
+void SaveHighScore(int score)
+{
+    std::ofstream file("highscore.txt");
+    if (file.is_open())
+    {
+        file << score;
+        file.close();
+    }
+}
 
 int GridIndex(Vec2 pos, int gridLength) // row = x , col = y
 {
@@ -217,7 +244,6 @@ ProgState EnterMainMenu(ProgState &state)
                 break;
             case '2':
                 // High Scores
-                std::cout << "High scores... (not implemented)" << std::endl;
                 state = ProgState::HighScores;
                 break;
             case '3':
@@ -253,10 +279,20 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
         UpdateSnake(config);
 
         gameOver = CheckOutOfBounds(config);
+        config.score++;
+        
         if (gameOver)
         {
+            if (config.score > config.highScore)
+            {
+                config.highScore = config.score;
+                SaveHighScore(config.highScore);
+            }
             std::cout << "\n--- GAME OVER ---\n";
+            std::cout << "\nHigh score: " << config.highScore << "!\n";
+            std::cout << "Your score: " << config.score << "!\n";
             std::cout << "Press any key to return to the main menu." << std::endl;
+            config.score = 0;
             _getch(); // Wait for any key press
             ClearScreen();
             state = ProgState::MainMenu;
@@ -269,13 +305,15 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
     return state;
 }
 
-ProgState EnterHighScores(ProgState &state)
+ProgState EnterHighScores(ProgState &state, GameConfig &config)
 {
     ClearScreen();
     while (state == ProgState::HighScores)
     {
-        std::cout << "No High Scores yet.\nPress any key to return to main menu.";
-        std::cin.get();
+        std::cout << "\n\n======= Snakey Console High Score =======\n";
+        std::cout << "    ------ High Score:" << config.highScore << " ------\n";
+        _getch(); // Wait for any key press
+        ClearScreen();
         state = ProgState::MainMenu;
     }
     return state;
@@ -289,6 +327,7 @@ int main()
 
     enum ProgState runningState = ProgState::MainMenu;
     GameConfig config;
+    config.highScore = LoadHighScore();
 
     while (runningState != ProgState::Quit)
     {
@@ -301,7 +340,7 @@ int main()
                 runningState = EnterGame(runningState, config);
                 continue;
             case ProgState::HighScores:
-                runningState = EnterHighScores(runningState);
+                runningState = EnterHighScores(runningState, config);
                 continue;
             default:
                 std::cout << "Unknown state. Entering Main Menu." << std::endl;
