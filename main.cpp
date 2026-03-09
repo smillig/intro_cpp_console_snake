@@ -6,88 +6,10 @@
 #include <chrono>
 #include <conio.h>
 #include <fstream>
+#include "grid.h"
+#include "gameConfig.h"
+#include "vec2.h"
 
-// create struct for snake position
-struct Vec2
-{
-    int x;
-    int y;
-
-    bool operator==(const Vec2& other) const
-    {
-        return x == other.x && y == other.y;
-    }
-
-    Vec2 operator+(const Vec2& other) const
-    {
-        return {x + other.x, y + other.y};
-    }
-};
-
-class GameGrid
-{
-private:
-    int gridSize;
-    std::vector<char> grid;
-
-public:
-    GameGrid(int gridSize, char emptyCell)
-        : gridSize(gridSize), grid(gridSize, emptyCell) 
-        {
-            this->gridSize = gridSize;
-            grid.resize(gridSize, emptyCell);
-        }
-
-    std::vector<char> getGrid() const
-    {
-        return grid;
-    }
-
-    void setGrid(int index, char value)
-    {
-        grid[index] = value;
-    }
-
-    void emptyGrid()
-    {
-        grid.assign(gridSize, '.');
-    }
-
-    int getGridSize() const
-    {
-        return gridSize;
-    }
-};
-
-// this will be the constructor once moved to grid.cpp
-/*
-GameGrid::GameGrid(int gridSize, char emptyCell)
-{
-    // or is this my constructor?
-    this->gridSize = gridSize;
-    grid.resize(gridSize, emptyCell);
-}
-*/
-
-
-
-// create struct for gameplay config items
-struct GameConfig
-{
-    int gridLength = 10;
-    int gridWidth = 10;
-    int snakeLength = 1;
-    int score = 0;
-    int highScore = 0;
-    Vec2 snakePos = {0, 0};
-    char lastInput = 'w';
-    char emptyCell = '.';
-    char wallCell = '#';
-    char foodCell = 'o';
-    char snakeHead = '@';
-    char snakeBody = '*';
-    GameGrid grid = GameGrid(gridLength * gridWidth, emptyCell);
-};
 
 int LoadHighScore()
 {
@@ -111,10 +33,6 @@ void SaveHighScore(int score)
     }
 }
 
-int GridIndex(Vec2 pos, int gridLength) // row = x , col = y
-{
-    return pos.x * gridLength + pos.y;
-}
 
 void ClearScreen()
 {
@@ -136,24 +54,7 @@ bool CheckOutOfBounds(GameConfig &config)
     return false;
 }
 
-void DrawGrid(GameConfig &config)
-{
-    config.grid.emptyGrid();
-    // Set the snake head position in the grid
-    config.grid.setGrid(GridIndex(config.snakePos, config.gridLength), config.snakeHead);
-    
-    // create grid on terminal
-    for (int i = 0; i < config.gridWidth; i++) // i represents the row
-    {
-        for(int j = 0; j < config.gridLength; j++) // j represents the column
-        {
-            // To access an element in a 1D vector as if it were a 2D grid,
-            // use the formula: row * num_columns + column. Here it's i * length + j.
-            std::cout << config.grid.getGrid()[i * config.gridLength + j];
-        }
-        std::cout << '\n';
-    }
-}
+
 
 enum class ProgState
 {
@@ -274,7 +175,7 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
     while (state == ProgState::Game)
     {
         ClearScreen();
-        DrawGrid(config);
+        config.grid.DrawGrid(config);
         HandlePlayerInput(config, state);
         UpdateSnake(config);
 
