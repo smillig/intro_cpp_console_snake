@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "grid.h"
-#include "gameConfig.h"
+#include "game.h"
 
 
 GameGrid::GameGrid(int gridLength, int gridWidth, char emptyCell)
