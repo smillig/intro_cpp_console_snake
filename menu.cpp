@@ -7,6 +7,7 @@
 #include "snake.h"
 #include "score_io.h"
 #include "game.h"
+#include "food.h"
 
 void ClearScreen()
 {
@@ -74,6 +75,7 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
     bool gameOver = false;
     // Set start position and reset last direction
     Vec2 startPos = {config.gridLength / 2, config.gridWidth / 2};
+    config.foodPos = RandomizeFoodPos(config);
     config.snakePos = startPos;
     config.lastInput = 'w'; // Reset to default starting direction
 
@@ -85,7 +87,12 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
         UpdateSnake(config);
 
         gameOver = CheckOutOfBounds(config);
-        config.score++;
+
+        if (config.snakePos == config.foodPos)
+        {
+            config.score++;
+            config.foodPos = RandomizeFoodPos(config);
+        }
         
         if (gameOver)
         {

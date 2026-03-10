@@ -35,6 +35,7 @@ void GameGrid::DrawGrid(GameConfig &config)
     emptyGrid();
     // Set the snake head position in the grid
     setGrid(GridIndex(config.snakePos), config.snakeHead);
+    setGrid(GridIndex(config.foodPos), config.foodCell);
     
     // create grid on terminal
     for (int i = 0; i < gridWidth; i++) // i represents the row
