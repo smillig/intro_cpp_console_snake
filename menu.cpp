@@ -8,6 +8,7 @@
 #include "score_io.h"
 #include "game.h"
 #include "food.h"
+#include "snake.h"
 
 void ClearScreen()
 {
@@ -73,26 +74,28 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
 {
     ClearScreen();
     bool gameOver = false;
-    // Set start position and reset last direction
-    Vec2 startPos = {config.gridLength / 2, config.gridWidth / 2};
-    config.foodPos = RandomizeFoodPos(config);
-    config.snakePos = startPos;
-    config.lastInput = 'w'; // Reset to default starting direction
+    // Create the snake at the center of the grid
+    Vec2 startPos = {config.gridWidth / 2, config.gridLength / 2};
+    Snake snake(startPos, config.gridLength, config.gridWidth);
+
+    config.foodPos = Food::RandomizeFoodPos(config, snake);
 
     while (state == ProgState::Game)
     {
         ClearScreen();
-        config.grid.DrawGrid(config);
-        HandlePlayerInput(config, state);
-        UpdateSnake(config);
-
-        gameOver = CheckOutOfBounds(config);
-
-        if (config.snakePos == config.foodPos)
+        config.grid.DrawGrid(config, snake);
+        snake.HandleInput(state);
+        if (snake.GetPosition() == config.foodPos)
         {
             config.score++;
-            config.foodPos = RandomizeFoodPos(config);
+            snake.Grow();
+            config.foodPos = Food::RandomizeFoodPos(config, snake);
         }
+        snake.Update();
+
+        gameOver = snake.CheckOutOfBounds() || snake.CheckSelfCollision();
+
+        
         
         if (gameOver)
         {

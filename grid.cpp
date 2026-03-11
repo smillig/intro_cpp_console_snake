@@ -2,6 +2,7 @@
 #include <vector>
 #include "grid.h"
 #include "game.h"
+#include "snake.h"
 
 
 GameGrid::GameGrid(int gridLength, int gridWidth, char emptyCell)
@@ -30,11 +31,17 @@ int GameGrid::getGridSize() const
     return gridSize;
 }
 
-void GameGrid::DrawGrid(GameConfig &config)
+void GameGrid::DrawGrid(const GameConfig &config, const Snake &snake)
 {
     emptyGrid();
+    
     // Set the snake head position in the grid
-    setGrid(GridIndex(config.snakePos), config.snakeHead);
+    const auto& body = snake.GetBody();
+    for(size_t i = 0; i < body.size(); ++i)
+    {
+        setGrid(GridIndex(body[i]), i == 0 ? config.snakeHead : config.snakeBody);
+    }
+
     setGrid(GridIndex(config.foodPos), config.foodCell);
     
     // create grid on terminal

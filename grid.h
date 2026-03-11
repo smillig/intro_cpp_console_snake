@@ -4,6 +4,7 @@
 
 // Forward declaration to avoid circular dependency
 struct GameConfig;
+class Snake;
 
 class GameGrid
 {
@@ -21,6 +22,6 @@ class GameGrid
         int getGridWidth() const;
         void emptyGrid();
         int getGridSize() const;
-        void DrawGrid(GameConfig &config);
+        void DrawGrid(const GameConfig &config, const Snake &snake);
         int GridIndex(Vec2 pos);
 };
