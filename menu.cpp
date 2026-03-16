@@ -1,7 +1,6 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <conio.h>
 #include <string>
 #include "menu.h"
 #include "snake.h"
@@ -9,6 +8,8 @@
 #include "game.h"
 #include "food.h"
 #include "snake.h"
+#include "input_handler.h"
+
 
 void ClearScreen()
 {
@@ -109,7 +110,7 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
             std::cout << "Your score: " << config.score << "!\n";
             std::cout << "Press any key to return to the main menu." << std::endl;
             config.score = 0;
-            _getch(); // Wait for any key press
+            getch_wrapper(); // Wait for any key press
             ClearScreen();
             state = ProgState::MainMenu;
             break; 
@@ -128,7 +129,7 @@ ProgState EnterHighScores(ProgState &state, GameConfig &config)
     {
         std::cout << "\n\n======= Snakey Console High Score =======\n";
         std::cout << "    ------ High Score:" << config.highScore << " ------\n";
-        _getch(); // Wait for any key press
+        getch_wrapper(); // Wait for any key press
         ClearScreen();
         state = ProgState::MainMenu;
     }

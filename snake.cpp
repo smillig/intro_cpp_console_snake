@@ -1,5 +1,5 @@
 #include "snake.h"
-#include <conio.h>
+#include "input_handler.h"
 
 Snake::Snake(Vec2 startPos, int gridLength, int gridWidth)
     : lastInput('w'), gridLength(gridLength), gridWidth(gridWidth)
@@ -85,9 +85,9 @@ void Snake::Update()
 
 void Snake::HandleInput(ProgState &state)
 {
-    if (_kbhit()) // check if a key has been pressed
+    if (kbhit_wrapper()) // check if a key has been pressed
     {
-        char input = _getch(); // get the character
+        char input = getch_wrapper(); // get the character
         if (input == 'w' || input == 'a' || input == 's' || input == 'd')
         {
             // Prevent snake from reversing on itself

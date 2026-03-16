@@ -4,10 +4,12 @@
 #include "vec2.h"
 #include "score_io.h"
 #include "menu.h"
+#include "input_handler.h"
 
 
 int main()
 {
+    InputManager inputManager; // Manages terminal state for cross-platform input
     enum ProgState runningState = ProgState::MainMenu;
     GameConfig config;
     config.highScore = LoadHighScore();
