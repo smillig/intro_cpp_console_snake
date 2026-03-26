@@ -71,6 +71,7 @@ ProgState EnterMainMenu(ProgState &state)
     return state;
 }
 
+// FIX: Having something like HandleGame would be better
 ProgState EnterGame(ProgState &state, GameConfig &config)
 {
     ClearScreen();
@@ -96,8 +97,6 @@ ProgState EnterGame(ProgState &state, GameConfig &config)
 
         gameOver = snake.CheckOutOfBounds() || snake.CheckSelfCollision();
 
-        
-        
         if (gameOver)
         {
             if (config.score > config.highScore)

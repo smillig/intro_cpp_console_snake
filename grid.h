@@ -9,6 +9,7 @@ class Snake;
 class GameGrid
 {
     private:
+        // FIX: member private variables shoud be prefixed with m
         int gridLength;
         int gridWidth;
         int gridSize;

@@ -83,6 +83,7 @@ void Snake::Update()
     }
 }
 
+// FIX: Input wrapper should handle inputs and pass to this
 void Snake::HandleInput(ProgState &state)
 {
     if (kbhit_wrapper()) // check if a key has been pressed

@@ -45,6 +45,7 @@ void GameGrid::DrawGrid(const GameConfig &config, const Snake &snake)
     setGrid(GridIndex(config.foodPos), config.foodCell);
     
     // create grid on terminal
+    // FIX: game flickers from output to each grid row sequntially, output entire grid in one go will help a lot.
     for (int i = 0; i < gridWidth; i++) // i represents the row
     {
         for(int j = 0; j < gridLength; j++) // j represents the column

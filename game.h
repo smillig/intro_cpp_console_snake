@@ -3,6 +3,7 @@
 #include "grid.h"
 
 // create struct for gameplay config items
+// TODO: break out initial config from active gameplay variables.
 struct GameConfig
 {
     int gridLength = 10;

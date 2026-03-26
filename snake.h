@@ -20,6 +20,7 @@ public:
     const std::deque<Vec2>& GetBody() const;
 
 private:
+    // initialize to default int = { 0 }
     std::deque<Vec2> body;
     bool growing = false;
     char lastInput;
